@@ -1,0 +1,46 @@
+# Render Blueprint for ApplyTrack.
+# Deploy: push this repo to GitHub, then in Render → New → Blueprint, select it.
+# Set the secret env vars (marked sync:false) in the dashboard after creation.
+services:
+  - type: web
+    name: applytrack
+    runtime: node
+    plan: starter # needs a paid/starter plan for a persistent disk + always-on cron
+    buildCommand: npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend && npm run build --prefix backend
+    startCommand: npm run start --prefix backend
+    healthCheckPath: /api/health
+    disk:
+      name: applytrack-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_PATH
+        value: /var/data/applytrack.sqlite
+      - key: DAILY_CRON
+        value: 0 7 * * *
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-4-6
+      - key: LOGIN_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ADZUNA_APP_ID
+        sync: false
+      - key: ADZUNA_KEY
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: DIGEST_TO
+        sync: false
+      - key: APP_URL
+        sync: false
