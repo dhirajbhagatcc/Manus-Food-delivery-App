@@ -90,6 +90,17 @@ Other hosts with a persistent volume (Fly.io, Railway) work the same way — jus
 
 ---
 
+## 📱 Use it on your phone (PWA + Android APK)
+
+ApplyTrack is an installable **PWA** and can also be packaged as a real **Android `.apk`** — see [MOBILE.md](./MOBILE.md). In short:
+
+- **PWA:** open your deployed URL on the phone → *Add to Home screen*. Works on Android & iPhone, no store.
+- **APK:** set a repo variable `APP_URL` to your deployed URL, then run the **Build Android APK** GitHub Action — it builds the APK in the cloud and you download it as an artifact (no Android Studio needed).
+
+Both load your deployed backend, so the app must be deployed first.
+
+---
+
 ## How the daily Discover run works
 
 ```

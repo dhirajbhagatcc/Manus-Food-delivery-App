@@ -1,0 +1,66 @@
+name: Build Android APK
+
+# Produces a downloadable .apk so you don't need any Android tooling locally.
+# Run it from the Actions tab (Run workflow), or it runs automatically on push.
+#
+# Before running, set a repository VARIABLE named APP_URL to your deployed
+# ApplyTrack URL (Settings → Secrets and variables → Actions → Variables).
+# The APK is a native shell that loads that URL, so the backend must be live.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, claude/charming-bell-3kkoat]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/android-apk.yml"
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      CAP_SERVER_URL: ${{ vars.APP_URL || 'https://applytrack.onrender.com' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: applytrack-apk
+          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
